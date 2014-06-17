@@ -5,7 +5,8 @@
 
 The datafile has been downloaded from [Activity Monitoring Data](https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip) into WS and un-zipped. Filename is "activity.csv".It has been loaded into R by command
 
-```{r}
+
+```r
 setInternet2(TRUE)  # set the R_WIN_INTERNET2 to TRUE
 FileUrl="https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip"
 download.file(FileUrl, "activity.zip")       
@@ -16,22 +17,39 @@ activity <- read.csv(activity_original)
 
 ## What is mean total number of steps taken per day?
 
-```{r}
+
+```r
 library(plyr)
 activity_day <- ddply(activity, .(date), summarise, 
                       stepSum = sum(steps))
 
 hist(activity_day$stepSum, main="Histogram of the total number of steps taken each day", 
             xlab="Total number of steps")
+```
 
+![plot of chunk unnamed-chunk-2](figure/unnamed-chunk-2.png) 
+
+```r
 # Calculate and report the mean and median total number of steps taken per day
 mean(activity_day$stepSum, na.rm=T)
+```
+
+```
+## [1] 10766
+```
+
+```r
 median(activity_day$stepSum, na.rm=T)
+```
+
+```
+## [1] 10765
 ```
 
 ## What is the average daily activity pattern?
 
-```{r}
+
+```r
 # make the time series plot
 
 stepAVGData <- ddply(activity, .(date), summarise, stepAVG=mean(steps))
@@ -45,12 +63,15 @@ activity_dayInterval <- merge(activity, stepAVGData, by="date", all.x=TRUE)
 with(activity_dayInterval, plot(date, stepAVG, type="l"))
 ```
 
+![plot of chunk unnamed-chunk-3](figure/unnamed-chunk-3.png) 
+
 
 ##### Imupte the mean steps in that day ####
 
 My strategy of imputation is to calculate the mean steps in each interval and impute the NA with the mean steps in the corresponding interval 
 
-```{r}
+
+```r
 activity$steps<-as.numeric(activity$steps)
 activity_interval <- ddply(activity, .(interval), summarise, 
                                MeanSteps = mean(steps, na.rm=T))
@@ -73,7 +94,8 @@ activityNew <- subset(activity, select=c(4,2,3))
 Yes, there are more steps during the middle of the day in Weekend and less steps in Weekdays. 
 
 
-```{r}
+
+```r
 ## Convert factor variable to character variable
 activityNew$date<-as.character(activityNew$date)
 activityNew$date <- as.Date(activityNew$date)
@@ -85,7 +107,15 @@ activityNew$Time[activityNew$WeekTime %in% c("Monday", "Tuesday", "Wednesday",
 activityNew$Time[activityNew$WeekTime %in% c("Saturday", "Sunday")] <- "weekend"
 activityNew$Time<-factor(activityNew$Time)
 table(activityNew$Time)
+```
 
+```
+## 
+## weekday weekend 
+##   12960    4608
+```
+
+```r
 #### construct 5 min interval dataset
 
 weekdayData <- activityNew[activityNew$Time=="weekday",]
@@ -102,6 +132,8 @@ with(weekend, plot(x=interval, y=stepMean, type='l', col="blue", main="Weekend",
 with(weekday, plot(x=interval, y=stepMean, type='l', col="blue", main="Weekday",
                    ylab="Number of Steps"))
 ```
+
+![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-5.png) 
 
 
 
