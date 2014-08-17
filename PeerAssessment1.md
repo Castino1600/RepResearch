@@ -141,6 +141,6 @@ with(weekday, plot(x=interval, y=stepMean, type='l', col="blue", main="Weekday",
 
 
 
-
+  
 
 
